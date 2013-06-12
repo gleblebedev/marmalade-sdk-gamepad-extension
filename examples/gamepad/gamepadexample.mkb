@@ -1,0 +1,20 @@
+#!/usr/bin/env mkb
+files
+{
+    gamepadexample.cpp
+}
+
+options
+{
+    strict
+}
+
+subprojects
+{
+    iwgx
+	../../extensions/gamepad/gamepad.mkf
+}
+
+deployments
+{
+}

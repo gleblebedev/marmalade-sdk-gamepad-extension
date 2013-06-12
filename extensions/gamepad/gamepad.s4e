@@ -1,0 +1,10 @@
+include:
+
+#include <s3eTypes.h>
+
+functions:
+
+uint32 gamepadGetNumDevices() 0 run_on_os_thread
+uint32* gamepadGetDeviceIds() 0 run_on_os_thread
+void gamepadUpdate() void run_on_os_thread
+
