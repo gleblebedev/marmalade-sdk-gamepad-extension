@@ -23,7 +23,6 @@ typedef struct gamepadCallbackInfo {
 	uint32 axesFlags;
 	uint32 buttonsFlags;
 } gamepadCallbackInfo;
-
 // \cond HIDDEN_DEFINES
 S3E_BEGIN_C_DECL
 // \endcond

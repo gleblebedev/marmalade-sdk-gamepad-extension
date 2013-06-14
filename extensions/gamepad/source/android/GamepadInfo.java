@@ -81,6 +81,7 @@ public class GamepadInfo
 			else
 				this.axis[i] = (event.getAxisValue(i));
 		}
+		invokeCallbacks();
 	}
 
 	public void handleKeyUp(int keyCode, KeyEvent event)
@@ -183,6 +184,7 @@ public class GamepadInfo
 			break;
 		}
 		this.buttons = newButtons;
+		invokeCallbacks();
 	}
 
 	public void handleKeyDown(int keyCode, KeyEvent event)
@@ -285,5 +287,6 @@ public class GamepadInfo
 			break;
 		}
 		this.buttons = newButtons;
+		invokeCallbacks();
 	}
 }

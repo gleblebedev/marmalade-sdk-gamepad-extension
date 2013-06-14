@@ -12,6 +12,13 @@
 #include "s3eEdk_android.h"
 #include <jni.h>
 #include "IwDebug.h"
+#include "gamepad.h"
+
+struct s3eCallbackInfo
+{
+	s3eCallback fn;
+	void* userData;
+};
 
 static jobject g_Obj;
 static jmethodID g_gamepadGetNumDevices;
@@ -29,17 +36,14 @@ static uint32 gamepad_num_callbacks = 0;
 JNIEXPORT void JNICALL Java_source_android_GamepadInfo_invokeCallbacks
   (JNIEnv * env, jobject jobj)
 {
-	if (!gamepadCompare(pOldInfo, pInfo))
-		{
-			gamepadCallbackInfo info;
-			info.index = 0;
-			info.axesFlags = 0;
-			info.buttonsFlags = 0;
-			for (uint32 x=0; x<gamepad_num_callbacks; ++x)
-			{
-				(*gamepad_callbacks[x].fn)(&info, gamepad_callbacks[x].userData);
-			}
-		}
+	gamepadCallbackInfo info;
+	info.index = 0;
+	info.axesFlags = 0;
+	info.buttonsFlags = 0;
+	for (uint32 x=0; x<gamepad_num_callbacks; ++x)
+	{
+		(*gamepad_callbacks[x].fn)(&info, gamepad_callbacks[x].userData);
+	}
 }
 
 s3eResult gamepadInit_platform()
