@@ -26,8 +26,8 @@ typedef     uint32(*gamepadGetNumAxes_t)(uint32 index);
 typedef     uint32(*gamepadGetNumButtons_t)(uint32 index);
 typedef     uint32(*gamepadGetButtons_t)(uint32 index);
 typedef      float(*gamepadGetAxis_t)(uint32 index, uint32 axisIndex);
-typedef       void(*gamepadRegisterCallback_t)(gamepadCallbackFn callback);
-typedef       void(*gamepadUnregisterCallback_t)(gamepadCallbackFn callback);
+typedef       void(*gamepadRegisterCallback_t)(s3eCallback callback, void* userData);
+typedef       void(*gamepadUnregisterCallback_t)(s3eCallback callback);
 typedef       void(*gamepadUpdate_t)();
 
 /**
@@ -209,7 +209,7 @@ float gamepadGetAxis(uint32 index, uint32 axisIndex)
     return ret;
 }
 
-void gamepadRegisterCallback(gamepadCallbackFn callback)
+void gamepadRegisterCallback(s3eCallback callback, void* userData)
 {
     IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[6] func: gamepadRegisterCallback"));
 
@@ -220,7 +220,7 @@ void gamepadRegisterCallback(gamepadCallbackFn callback)
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
-    g_Ext.m_gamepadRegisterCallback(callback);
+    g_Ext.m_gamepadRegisterCallback(callback, userData);
 
 #ifdef LOADER_CALL
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
@@ -229,7 +229,7 @@ void gamepadRegisterCallback(gamepadCallbackFn callback)
     return;
 }
 
-void gamepadUnregisterCallback(gamepadCallbackFn callback)
+void gamepadUnregisterCallback(s3eCallback callback)
 {
     IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[7] func: gamepadUnregisterCallback"));
 

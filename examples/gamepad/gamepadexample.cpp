@@ -13,10 +13,21 @@
 
 #include "IwGx.h"
 #include "gamepad.h"
+#include <s3eTypes.h>
+
+char g_callbackMsg [1024];
+
+S3E_API int32 gamepadCallback(void* ptr, void* userData)
+{
+	gamepadCallbackInfo* a = (gamepadCallbackInfo*)ptr;
+	sprintf(g_callbackMsg,"index: %d, 0x%08X 0x%08X",a->index,a->axesFlags,a->buttonsFlags);
+	return 0;
+}
 
 // Standard C-style entry point. This can take args if required.
 int main()
 {
+	sprintf(g_callbackMsg,"-");
 	char buf [4096];
 	uint32 i,j;
 	uint32 num = gamepadGetNumDevices();
@@ -25,6 +36,7 @@ int main()
     IwGxInit();
 	if (gamepadAvailable())
 	{
+		gamepadRegisterCallback(gamepadCallback,0);
 		//gamepadInit();
 	}
 
@@ -62,6 +74,7 @@ int main()
 					b = b >> 1;
 				}
 				sprintf(buf+strlen(buf), "\n");
+				sprintf(buf+strlen(buf), g_callbackMsg);
 			}
 			
 			IwGxPrintString(10, 10, buf);
@@ -79,6 +92,7 @@ int main()
 	if (gamepadAvailable())
 	{
 		//gamepadTerminate();
+		gamepadUnregisterCallback(gamepadCallback);
 	}
     // Shut down the IwGx drawing module
     IwGxTerminate();

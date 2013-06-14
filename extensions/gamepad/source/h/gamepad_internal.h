@@ -55,9 +55,9 @@ uint32 gamepadGetButtons_platform(uint32 index);
 
 float gamepadGetAxis_platform(uint32 index, uint32 axisIndex);
 
-void gamepadRegisterCallback_platform(gamepadCallbackFn);
+void gamepadRegisterCallback_platform(s3eCallback callback, void* userData);
 
-void gamepadUnregisterCallback_platform(gamepadCallbackFn);
+void gamepadUnregisterCallback_platform(s3eCallback callback);
 
 void gamepadUpdate_platform();
 

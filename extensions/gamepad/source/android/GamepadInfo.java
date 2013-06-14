@@ -10,6 +10,8 @@ import android.view.KeyEvent;
 
 public class GamepadInfo
 {
+	native void invokeCallbacks();
+
 	public static ArrayList<GamepadInfo> Instance;
 
 	List<InputDevice.MotionRange> motionsRanges;	

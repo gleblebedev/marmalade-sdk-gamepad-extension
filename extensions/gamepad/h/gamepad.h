@@ -18,7 +18,12 @@
 
 #include <s3eTypes.h>
 
-typedef void (gamepadCallbackFn)( uint32 index, uint32 buttonFlags, uint32 axesFlags );
+typedef struct gamepadCallbackInfo {
+	uint32 index;
+	uint32 axesFlags;
+	uint32 buttonsFlags;
+} gamepadCallbackInfo;
+
 // \cond HIDDEN_DEFINES
 S3E_BEGIN_C_DECL
 // \endcond
@@ -40,9 +45,9 @@ uint32 gamepadGetButtons(uint32 index);
 
 float gamepadGetAxis(uint32 index, uint32 axisIndex);
 
-void gamepadRegisterCallback(gamepadCallbackFn callback);
+void gamepadRegisterCallback(s3eCallback callback, void* userData);
 
-void gamepadUnregisterCallback(gamepadCallbackFn callback);
+void gamepadUnregisterCallback(s3eCallback callback);
 
 void gamepadUpdate();
 

@@ -23,6 +23,24 @@ static jmethodID g_gamepadGetAxis;
 static jmethodID g_gamepadUpdate;
 static jmethodID g_gamepadInit;
 static jmethodID g_gamepadTerminate;
+static s3eCallbackInfo gamepad_callbacks[16];
+static uint32 gamepad_num_callbacks = 0;
+
+JNIEXPORT void JNICALL Java_source_android_GamepadInfo_invokeCallbacks
+  (JNIEnv * env, jobject jobj)
+{
+	if (!gamepadCompare(pOldInfo, pInfo))
+		{
+			gamepadCallbackInfo info;
+			info.index = 0;
+			info.axesFlags = 0;
+			info.buttonsFlags = 0;
+			for (uint32 x=0; x<gamepad_num_callbacks; ++x)
+			{
+				(*gamepad_callbacks[x].fn)(&info, gamepad_callbacks[x].userData);
+			}
+		}
+}
 
 s3eResult gamepadInit_platform()
 {
@@ -143,12 +161,27 @@ float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
     return (float)env->CallFloatMethod(g_Obj, g_gamepadGetAxis, index, axisIndex);
 }
 
-void gamepadRegisterCallback_platform(gamepadCallbackFn callback)
+void gamepadRegisterCallback_platform(s3eCallback callback, void* userData)
 {
+	gamepad_callbacks[gamepad_num_callbacks].fn = callback;
+	gamepad_callbacks[gamepad_num_callbacks].userData = userData;
+	++gamepad_num_callbacks;
 }
 
-void gamepadUnregisterCallback_platform(gamepadCallbackFn callback)
+void gamepadUnregisterCallback_platform(s3eCallback callback)
 {
+	for (uint32 i=0; i<gamepad_num_callbacks; ++i)
+	{
+		if (gamepad_callbacks[i].fn == callback)
+		{
+			for (; i<gamepad_num_callbacks; ++i)
+			{
+				gamepad_callbacks[i] = gamepad_callbacks[i+1];
+			}
+			--gamepad_num_callbacks;
+			return;
+		}
+	}
 }
 
 void gamepadUpdate_platform()

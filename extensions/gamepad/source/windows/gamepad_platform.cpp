@@ -10,13 +10,19 @@
 #include <s3eEdk_windows.h>
 #include "IwDebug.h"
 
+struct s3eCallbackInfo
+{
+	s3eCallback fn;
+	void* userData;
+};
 
 static UINT gamepad_device_count = 0;
 static UINT gamepad_device_handlers[16];
 static JOYINFOEX gamepad_device_info[16];
 static JOYINFOEX gamepad_device_info_old[16];
 static JOYCAPS gamepad_device_caps[16];
-
+static s3eCallbackInfo gamepad_callbacks[16];
+static UINT gamepad_num_callbacks = 0;
 static HHOOK hook = 0;
 
 bool gamepadCompare(JOYINFOEX* a, JOYINFOEX* b)
@@ -41,8 +47,22 @@ void gamepadUpdate_platform()
 
 		if (!gamepadCompare(pOldInfo, pInfo))
 		{
+			gamepadCallbackInfo info;
+			info.axesFlags = 0;
+			if (pOldInfo->dwXpos != pInfo->dwXpos)
+				info.axesFlags |= 1<<0;
+			if (pOldInfo->dwYpos != pInfo->dwYpos)
+				info.axesFlags |= 1<<1;
+			if (pOldInfo->dwZpos != pInfo->dwZpos)
+				info.axesFlags |= 1<<2;
+			info.buttonsFlags = (pOldInfo->dwButtons)^(pInfo->dwButtons);
+			info.index = i;
 			*pOldInfo = *pInfo;
-			IwTrace(GAMEPAD_VERBOSE, ("Gamepad %d: (x:%d, y:%d)", j, pInfo->dwXpos, pInfo->dwYpos));
+			for (uint32 x=0; x<gamepad_num_callbacks; ++x)
+			{
+				(*gamepad_callbacks[x].fn)(&info, gamepad_callbacks[x].userData);
+			}
+			//IwTrace(GAMEPAD_VERBOSE, ("Gamepad %d: (x:%d, y:%d)", j, pInfo->dwXpos, pInfo->dwYpos));
 		}
 	}
 }
@@ -293,12 +313,27 @@ float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 	}
 }
 
-void gamepadRegisterCallback_platform(gamepadCallbackFn callback)
+void gamepadRegisterCallback_platform(s3eCallback callback, void* userData)
 {
+	gamepad_callbacks[gamepad_num_callbacks].fn = callback;
+	gamepad_callbacks[gamepad_num_callbacks].userData = userData;
+	++gamepad_num_callbacks;
 }
 
-void gamepadUnregisterCallback_platform(gamepadCallbackFn callback)
+void gamepadUnregisterCallback_platform(s3eCallback callback)
 {
+	for (UINT i=0; i<gamepad_num_callbacks; ++i)
+	{
+		if (gamepad_callbacks[i].fn == callback)
+		{
+			for (; i<gamepad_num_callbacks; ++i)
+			{
+				gamepad_callbacks[i] = gamepad_callbacks[i+1];
+			}
+			--gamepad_num_callbacks;
+			return;
+		}
+	}
 }
 
 uint32 gamepadGetDeviceId_platform(uint32 index)

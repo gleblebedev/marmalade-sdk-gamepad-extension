@@ -53,12 +53,12 @@ float gamepadGetAxis(uint32 index, uint32 axisIndex)
 	return gamepadGetAxis_platform(index, axisIndex);
 }
 
-void gamepadRegisterCallback(gamepadCallbackFn callback)
+void gamepadRegisterCallback(s3eCallback callback, void* userData)
 {
-	gamepadRegisterCallback_platform(callback);
+	gamepadRegisterCallback_platform(callback,userData);
 }
 
-void gamepadUnregisterCallback(gamepadCallbackFn callback)
+void gamepadUnregisterCallback(s3eCallback callback)
 {
 	gamepadUnregisterCallback_platform(callback);
 }
