@@ -10,7 +10,9 @@ import android.view.KeyEvent;
 
 public class GamepadInfo
 {
-	native void invokeCallbacks();
+	//static { System.loadLibrary("gamepad"); }
+	//native void invokeCallbacks();
+	void invokeCallbacks() {};
 
 	public static ArrayList<GamepadInfo> Instance;
 

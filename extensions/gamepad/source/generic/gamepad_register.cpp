@@ -48,6 +48,30 @@ static uint32 gamepadGetNumButtons_wrap(uint32 index)
     return (uint32)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadGetNumButtons, 1, index);
 }
 
+static uint32 gamepadGetButtons_wrap(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadGetButtons"));
+    return (uint32)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadGetButtons, 1, index);
+}
+
+static float gamepadGetAxis_wrap(uint32 index, uint32 axisIndex)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadGetAxis"));
+    return (float)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadGetAxis, 2, index, axisIndex);
+}
+
+static void gamepadRegisterCallback_wrap(s3eCallback callback, void* userData)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadRegisterCallback"));
+    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadRegisterCallback, 2, callback, userData);
+}
+
+static void gamepadUnregisterCallback_wrap(s3eCallback callback)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadUnregisterCallback"));
+    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadUnregisterCallback, 1, callback);
+}
+
 static void gamepadUpdate_wrap()
 {
     IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadUpdate"));
@@ -58,6 +82,10 @@ static void gamepadUpdate_wrap()
 #define gamepadGetDeviceId gamepadGetDeviceId_wrap
 #define gamepadGetNumAxes gamepadGetNumAxes_wrap
 #define gamepadGetNumButtons gamepadGetNumButtons_wrap
+#define gamepadGetButtons gamepadGetButtons_wrap
+#define gamepadGetAxis gamepadGetAxis_wrap
+#define gamepadRegisterCallback gamepadRegisterCallback_wrap
+#define gamepadUnregisterCallback gamepadUnregisterCallback_wrap
 #define gamepadUpdate gamepadUpdate_wrap
 
 #endif
