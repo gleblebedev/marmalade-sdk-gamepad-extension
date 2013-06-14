@@ -6,6 +6,8 @@ files
 {
     (source/android)
     gamepad.java
+    gamepadActivity.java
+    GamepadInfo.java
 }
 
 librarypath "$MARMALADE_ROOT/s3e/deploy/plugins/android/android.jar"

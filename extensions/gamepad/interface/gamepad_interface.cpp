@@ -21,7 +21,13 @@
  * Definitions for functions types passed to/from s3eExt interface
  */
 typedef     uint32(*gamepadGetNumDevices_t)();
-typedef    uint32*(*gamepadGetDeviceIds_t)();
+typedef     uint32(*gamepadGetDeviceId_t)(uint32 index);
+typedef     uint32(*gamepadGetNumAxes_t)(uint32 index);
+typedef     uint32(*gamepadGetNumButtons_t)(uint32 index);
+typedef     uint32(*gamepadGetButtons_t)(uint32 index);
+typedef      float(*gamepadGetAxis_t)(uint32 index, uint32 axisIndex);
+typedef       void(*gamepadRegisterCallback_t)(gamepadCallbackFn callback);
+typedef       void(*gamepadUnregisterCallback_t)(gamepadCallbackFn callback);
 typedef       void(*gamepadUpdate_t)();
 
 /**
@@ -30,7 +36,13 @@ typedef       void(*gamepadUpdate_t)();
 typedef struct gamepadFuncs
 {
     gamepadGetNumDevices_t m_gamepadGetNumDevices;
-    gamepadGetDeviceIds_t m_gamepadGetDeviceIds;
+    gamepadGetDeviceId_t m_gamepadGetDeviceId;
+    gamepadGetNumAxes_t m_gamepadGetNumAxes;
+    gamepadGetNumButtons_t m_gamepadGetNumButtons;
+    gamepadGetButtons_t m_gamepadGetButtons;
+    gamepadGetAxis_t m_gamepadGetAxis;
+    gamepadRegisterCallback_t m_gamepadRegisterCallback;
+    gamepadUnregisterCallback_t m_gamepadUnregisterCallback;
     gamepadUpdate_t m_gamepadUpdate;
 } gamepadFuncs;
 
@@ -97,9 +109,9 @@ uint32 gamepadGetNumDevices()
     return ret;
 }
 
-uint32* gamepadGetDeviceIds()
+uint32 gamepadGetDeviceId(uint32 index)
 {
-    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[1] func: gamepadGetDeviceIds"));
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[1] func: gamepadGetDeviceId"));
 
     if (!_extLoad())
         return 0;
@@ -108,7 +120,7 @@ uint32* gamepadGetDeviceIds()
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
-    uint32* ret = g_Ext.m_gamepadGetDeviceIds();
+    uint32 ret = g_Ext.m_gamepadGetDeviceId(index);
 
 #ifdef LOADER_CALL
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
@@ -117,9 +129,129 @@ uint32* gamepadGetDeviceIds()
     return ret;
 }
 
+uint32 gamepadGetNumAxes(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[2] func: gamepadGetNumAxes"));
+
+    if (!_extLoad())
+        return 0;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    uint32 ret = g_Ext.m_gamepadGetNumAxes(index);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+uint32 gamepadGetNumButtons(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[3] func: gamepadGetNumButtons"));
+
+    if (!_extLoad())
+        return 0;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    uint32 ret = g_Ext.m_gamepadGetNumButtons(index);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+uint32 gamepadGetButtons(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[4] func: gamepadGetButtons"));
+
+    if (!_extLoad())
+        return 0;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    uint32 ret = g_Ext.m_gamepadGetButtons(index);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+float gamepadGetAxis(uint32 index, uint32 axisIndex)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[5] func: gamepadGetAxis"));
+
+    if (!_extLoad())
+        return 0;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    float ret = g_Ext.m_gamepadGetAxis(index, axisIndex);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+void gamepadRegisterCallback(gamepadCallbackFn callback)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[6] func: gamepadRegisterCallback"));
+
+    if (!_extLoad())
+        return;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    g_Ext.m_gamepadRegisterCallback(callback);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return;
+}
+
+void gamepadUnregisterCallback(gamepadCallbackFn callback)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[7] func: gamepadUnregisterCallback"));
+
+    if (!_extLoad())
+        return;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    g_Ext.m_gamepadUnregisterCallback(callback);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return;
+}
+
 void gamepadUpdate()
 {
-    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[2] func: gamepadUpdate"));
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[8] func: gamepadUpdate"));
 
     if (!_extLoad())
         return;

@@ -17,6 +17,8 @@
 #define S3E_EXT_GAMEPAD_H
 
 #include <s3eTypes.h>
+
+typedef void (gamepadCallbackFn)( uint32 index, uint32 buttonFlags, uint32 axesFlags );
 // \cond HIDDEN_DEFINES
 S3E_BEGIN_C_DECL
 // \endcond
@@ -28,7 +30,19 @@ s3eBool gamepadAvailable();
 
 uint32 gamepadGetNumDevices();
 
-uint32* gamepadGetDeviceIds();
+uint32 gamepadGetDeviceId(uint32 index);
+
+uint32 gamepadGetNumAxes(uint32 index);
+
+uint32 gamepadGetNumButtons(uint32 index);
+
+uint32 gamepadGetButtons(uint32 index);
+
+float gamepadGetAxis(uint32 index, uint32 axisIndex);
+
+void gamepadRegisterCallback(gamepadCallbackFn callback);
+
+void gamepadUnregisterCallback(gamepadCallbackFn callback);
 
 void gamepadUpdate();
 

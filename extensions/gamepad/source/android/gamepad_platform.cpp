@@ -14,7 +14,15 @@
 #include "IwDebug.h"
 
 static jobject g_Obj;
-static jmethodID g_gamepadGetDeviceIds;
+static jmethodID g_gamepadGetNumDevices;
+static jmethodID g_gamepadGetDeviceId;
+static jmethodID g_gamepadGetNumAxes;
+static jmethodID g_gamepadGetNumButtons;
+static jmethodID g_gamepadGetButtons;
+static jmethodID g_gamepadGetAxis;
+static jmethodID g_gamepadUpdate;
+static jmethodID g_gamepadInit;
+static jmethodID g_gamepadTerminate;
 
 s3eResult gamepadInit_platform()
 {
@@ -39,16 +47,43 @@ s3eResult gamepadInit_platform()
         goto fail;
 
     // Get all the extension methods
-    g_gamepadGetDeviceIds = env->GetMethodID(cls, "gamepadGetDeviceIds", "()V");
-    if (!g_gamepadGetDeviceIds)
+    g_gamepadGetNumDevices = env->GetMethodID(cls, "gamepadGetNumDevices", "()I");
+    if (!g_gamepadGetNumDevices)
         goto fail;
 
+    g_gamepadGetDeviceId = env->GetMethodID(cls, "gamepadGetDeviceId", "(I)I");
+    if (!g_gamepadGetDeviceId)
+        goto fail;
 
+    g_gamepadGetNumAxes = env->GetMethodID(cls, "gamepadGetNumAxes", "(I)I");
+    if (!g_gamepadGetNumAxes)
+        goto fail;
+
+    g_gamepadGetNumButtons = env->GetMethodID(cls, "gamepadGetNumButtons", "(I)I");
+    if (!g_gamepadGetNumButtons)
+        goto fail;
+
+    g_gamepadGetButtons = env->GetMethodID(cls, "gamepadGetButtons", "(I)I");
+    if (!g_gamepadGetButtons)
+        goto fail;
+
+    g_gamepadGetAxis = env->GetMethodID(cls, "gamepadGetAxis", "(II)F");
+    if (!g_gamepadGetAxis)
+        goto fail;
+
+    g_gamepadUpdate = env->GetMethodID(cls, "gamepadUpdate", "()V");
+    if (!g_gamepadUpdate)
+        goto fail;
+
+    g_gamepadInit = env->GetMethodID(cls, "gamepadInit", "()V");
+    g_gamepadTerminate = env->GetMethodID(cls, "gamepadTerminate", "()V");
 
     IwTrace(GAMEPAD, ("GAMEPAD init success"));
     g_Obj = env->NewGlobalRef(obj);
     env->DeleteLocalRef(obj);
     env->DeleteGlobalRef(cls);
+
+    env->CallIntMethod(g_Obj, g_gamepadInit);
 
     // Add any platform-specific initialisation code here
     return S3E_RESULT_SUCCESS;
@@ -68,11 +103,56 @@ fail:
 void gamepadTerminate_platform()
 {
     // Add any platform-specific termination code here
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    env->CallIntMethod(g_Obj, g_gamepadTerminate);
 }
 
-uint32* gamepadGetDeviceIds_platform()
+uint32 gamepadGetNumDevices_platform()
 {
     JNIEnv* env = s3eEdkJNIGetEnv();
-    env->CallVoidMethod(g_Obj, g_gamepadGetDeviceIds);
-    return -1;
+    return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetNumDevices);
+}
+
+uint32 gamepadGetDeviceId_platform(uint32 index)
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetDeviceId, index);
+}
+
+uint32 gamepadGetNumAxes_platform(uint32 index)
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetNumAxes, index);
+}
+
+uint32 gamepadGetNumButtons_platform(uint32 index)
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetNumButtons, index);
+}
+
+uint32 gamepadGetButtons_platform(uint32 index)
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetButtons, index);
+}
+
+float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    return (float)env->CallFloatMethod(g_Obj, g_gamepadGetAxis, index, axisIndex);
+}
+
+void gamepadRegisterCallback_platform(gamepadCallbackFn callback)
+{
+}
+
+void gamepadUnregisterCallback_platform(gamepadCallbackFn callback)
+{
+}
+
+void gamepadUpdate_platform()
+{
+    JNIEnv* env = s3eEdkJNIGetEnv();
+    env->CallVoidMethod(g_Obj, g_gamepadUpdate);
 }

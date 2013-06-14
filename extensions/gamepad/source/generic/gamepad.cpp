@@ -23,9 +23,9 @@ void gamepadTerminate()
     gamepadTerminate_platform();
 }
 
-uint32* gamepadGetDeviceIds()
+uint32 gamepadGetDeviceId(uint32 index)
 {
-	return gamepadGetDeviceIds_platform();
+	return gamepadGetDeviceId_platform(index);
 }
 
 uint32 gamepadGetNumDevices()
@@ -33,7 +33,38 @@ uint32 gamepadGetNumDevices()
 	return gamepadGetNumDevices_platform();
 }
 
+uint32 gamepadGetNumAxes(uint32 index)
+{
+	return gamepadGetNumAxes_platform(index);
+}
+
+uint32 gamepadGetNumButtons(uint32 index)
+{
+	return gamepadGetNumButtons_platform(index);
+}
+
+uint32 gamepadGetButtons(uint32 index)
+{
+	return gamepadGetButtons_platform(index);
+}
+
+float gamepadGetAxis(uint32 index, uint32 axisIndex)
+{
+	return gamepadGetAxis_platform(index, axisIndex);
+}
+
+void gamepadRegisterCallback(gamepadCallbackFn callback)
+{
+	gamepadRegisterCallback_platform(callback);
+}
+
+void gamepadUnregisterCallback(gamepadCallbackFn callback)
+{
+	gamepadUnregisterCallback_platform(callback);
+}
+
 void gamepadUpdate()
 {
 	gamepadUpdate_platform();
 }
+

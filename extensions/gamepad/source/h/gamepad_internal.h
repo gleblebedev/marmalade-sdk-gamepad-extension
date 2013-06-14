@@ -43,8 +43,22 @@ void gamepadTerminate();
  */
 void gamepadTerminate_platform();
 
-uint32* gamepadGetDeviceIds_platform();
+uint32 gamepadGetDeviceId_platform(uint32 index);
+
 uint32 gamepadGetNumDevices_platform();
+
+uint32 gamepadGetNumAxes_platform(uint32 index);
+
+uint32 gamepadGetNumButtons_platform(uint32 index);
+
+uint32 gamepadGetButtons_platform(uint32 index);
+
+float gamepadGetAxis_platform(uint32 index, uint32 axisIndex);
+
+void gamepadRegisterCallback_platform(gamepadCallbackFn);
+
+void gamepadUnregisterCallback_platform(gamepadCallbackFn);
+
 void gamepadUpdate_platform();
 
 

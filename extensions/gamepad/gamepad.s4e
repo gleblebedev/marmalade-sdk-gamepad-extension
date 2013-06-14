@@ -2,9 +2,18 @@ include:
 
 #include <s3eTypes.h>
 
+typedef void (gamepadCallbackFn)( uint32 index, uint32 buttonFlags, uint32 axesFlags );
+
 functions:
 
 uint32 gamepadGetNumDevices() 0 run_on_os_thread
-uint32* gamepadGetDeviceIds() 0 run_on_os_thread
+uint32 gamepadGetDeviceId(uint32 index) 0 run_on_os_thread
+uint32 gamepadGetNumAxes(uint32 index) 0 run_on_os_thread
+uint32 gamepadGetNumButtons(uint32 index) 0 run_on_os_thread
+uint32 gamepadGetButtons(uint32 index) 0
+float gamepadGetAxis(uint32 index, uint32 axisIndex) 0
+void gamepadRegisterCallback(gamepadCallbackFn callback) void
+void gamepadUnregisterCallback(gamepadCallbackFn callback) void
 void gamepadUpdate() void run_on_os_thread
 
+                        

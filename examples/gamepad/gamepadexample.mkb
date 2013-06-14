@@ -17,4 +17,5 @@ subprojects
 
 deployments
 {
+	android-custom-activity="source.android.gamepadActivity"
 }

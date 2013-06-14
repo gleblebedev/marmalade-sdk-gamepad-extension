@@ -11,41 +11,6 @@
  * PARTICULAR PURPOSE.
  */
 
-/**
- * @page ExampleIwGxHelloWorld IwGx Hello World Example
- *
- * The following example, in typical Hello World style, displays the phrase
- * "Hello, World!" on screen.
- *
- * The functions required to achieve this are:
- * Printing the text to screen:
- *  - IwGxPrintString()
- *
- * Standard IwGx API:
- *  - IwGxInit()
- *  - IwGxTerminate()
- *  - IwGxSetColClear()
- *  - IwGxFlush()
- *  - IwGxSwapBuffers()
- *
- * Device interoperability through the s3e API:
- *  - s3eDeviceCheckQuitRequest()
- *  - s3eDeviceYield()
- *
- * All examples will follow this basic pattern; a brief description of what
- * the example does will be given followed by a list of all the important
- * functions and, perhaps, classes.
- *
- * Should the example be more complex, a more detailed explanation of what the
- * example does and how it does it will be added. Note that most examples
- * use an example framework to remove boilerplate code and allow the projects
- * to be made up of a single source file for easy viewing. This framework can
- * be found in the examples/s3e/ExamplesMain directory.
- *
- * @include IwGxHelloWorld.cpp
- */
-
-// Include the single header file for the IwGx module
 #include "IwGx.h"
 #include "gamepad.h"
 
@@ -53,9 +18,8 @@
 int main()
 {
 	char buf [4096];
-	uint32 i;
+	uint32 i,j;
 	uint32 num = gamepadGetNumDevices();
-	uint32* ids = gamepadGetDeviceIds();
 
 	// Initialise the IwGx drawing module
     IwGxInit();
@@ -74,7 +38,7 @@ int main()
 
 		if (!gamepadAvailable())
 		{
-	        IwGxPrintString(120, 150, "GamePad API is not available!");
+	        IwGxPrintString(10, 10, "GamePad API is not available!");
 		}
 		else
 		{
@@ -82,10 +46,25 @@ int main()
 			buf[0] = 0;
 			for (i=0; i<num; ++i)
 			{
-				sprintf(buf+strlen(buf), "%d: id=0x%08X\n", i, ids[i]);
+				sprintf(buf+strlen(buf), "%d: id=0x%08X\n", i, gamepadGetDeviceId(i));
+				uint32 numAxes  = gamepadGetNumAxes(i);
+				sprintf(buf+strlen(buf), "%d axes\n", numAxes);
+				for (j=0; j<numAxes && j<6; ++j)
+				{
+					sprintf(buf+strlen(buf), "axis %d: %f\n", j, gamepadGetAxis(i,j));
+				}
+				uint32 numButtons = gamepadGetNumButtons(i);
+				uint32 b = gamepadGetButtons(i);
+				sprintf(buf+strlen(buf), "%d buttons\n", numButtons);
+				for (j=0; j<numButtons && j<32; ++j)
+				{
+					sprintf(buf+strlen(buf), (b&1)?"X":"-");
+					b = b >> 1;
+				}
+				sprintf(buf+strlen(buf), "\n");
 			}
 			
-			IwGxPrintString(120, 150, buf);
+			IwGxPrintString(10, 10, buf);
 		}
 
         // Standard EGL-style flush of drawing to the surface

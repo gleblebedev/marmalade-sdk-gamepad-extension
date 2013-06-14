@@ -15,6 +15,7 @@ static UINT gamepad_device_count = 0;
 static UINT gamepad_device_handlers[16];
 static JOYINFOEX gamepad_device_info[16];
 static JOYINFOEX gamepad_device_info_old[16];
+static JOYCAPS gamepad_device_caps[16];
 
 static HHOOK hook = 0;
 
@@ -117,6 +118,7 @@ s3eResult gamepadInit_platform()
 		{
 			gamepad_device_handlers[gamepad_device_count] = JOYSTICKID1+i;
 			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d captured", i+1));
+			joyGetDevCaps(JOYSTICKID1+i, &gamepad_device_caps[gamepad_device_count], sizeof(JOYCAPS));
 			++gamepad_device_count;
 		}
 	}
@@ -253,7 +255,53 @@ uint32 gamepadGetNumDevices_platform()
 	return gamepad_device_count;
 }
 
-uint32* gamepadGetDeviceIds_platform()
+uint32 gamepadGetNumAxes_platform(uint32 index)
 {
-	return gamepad_device_handlers;
+	return gamepad_device_caps[index].wMaxAxes;
+	//return max(gamepad_device_caps[index].wMaxAxes,32);
+}
+
+uint32 gamepadGetNumButtons_platform(uint32 index)
+{
+	return gamepad_device_caps[index].wMaxButtons;
+	//return max(gamepad_device_caps[index].wMaxButtons,32);
+}
+
+uint32 gamepadGetButtons_platform(uint32 index)
+{
+	return (gamepad_device_info[index].dwButtons);
+}
+
+float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
+{
+	auto info = &gamepad_device_info[index];
+	auto caps = &gamepad_device_caps[index];
+	switch (axisIndex)
+	{
+	case 0:
+		return (float)(info->dwXpos-caps->wXmin)/(float)(caps->wXmax - caps->wXmin);
+	case 1:
+		return (float)(info->dwYpos-caps->wYmin)/(float)(caps->wYmax - caps->wYmin);
+	case 2:
+		return (float)(info->dwZpos-caps->wZmin)/(float)(caps->wZmax - caps->wZmin);
+	case 3:
+		return (float)(info->dwUpos-caps->wUmin)/(float)(caps->wUmax - caps->wUmin);
+	case 4:
+		return (float)(info->dwVpos-caps->wVmin)/(float)(caps->wVmax - caps->wVmin);
+	default:
+		return 0;
+	}
+}
+
+void gamepadRegisterCallback_platform(gamepadCallbackFn callback)
+{
+}
+
+void gamepadUnregisterCallback_platform(gamepadCallbackFn callback)
+{
+}
+
+uint32 gamepadGetDeviceId_platform(uint32 index)
+{
+	return gamepad_device_handlers[index];
 }
