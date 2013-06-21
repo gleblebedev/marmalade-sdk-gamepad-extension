@@ -58,7 +58,9 @@ int main()
 			buf[0] = 0;
 			for (i=0; i<num; ++i)
 			{
-				sprintf(buf+strlen(buf), "%d: id=0x%08X\n", i, gamepadGetDeviceId(i));
+				const char* name = gamepadGetDeviceName(i);
+				if (!name) name = "";
+				sprintf(buf+strlen(buf), "%d: id=0x%08X, name=%s\n", i, gamepadGetDeviceId(i), name);
 				uint32 numAxes  = gamepadGetNumAxes(i);
 				sprintf(buf+strlen(buf), "%d axes\n", numAxes);
 				for (j=0; j<numAxes && j<6; ++j)
@@ -82,7 +84,7 @@ int main()
 				sprintf(buf+strlen(buf), g_callbackMsg);
 			}
 			
-			IwGxPrintString(10, 10, buf);
+			IwGxPrintString(100, 10, buf);
 		}
 
         // Standard EGL-style flush of drawing to the surface

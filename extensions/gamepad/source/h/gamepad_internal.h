@@ -47,6 +47,8 @@ uint32 gamepadGetDeviceId_platform(uint32 index);
 
 uint32 gamepadGetNumDevices_platform();
 
+const char* gamepadGetDeviceName_platform(uint32 index);
+
 uint32 gamepadGetNumAxes_platform(uint32 index);
 
 uint32 gamepadGetNumButtons_platform(uint32 index);

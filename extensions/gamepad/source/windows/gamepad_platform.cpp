@@ -310,6 +310,11 @@ uint32 gamepadGetButtons_platform(uint32 index)
 	return (gamepad_device_info[index].dwButtons);
 }
 
+const char* gamepadGetDeviceName_platform(uint32 index)
+{
+	return (gamepad_device_caps[index].szPname);
+}
+
 int32 gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 {
 	JOYINFOEX* info = &gamepad_device_info[index];

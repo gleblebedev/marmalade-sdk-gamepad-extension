@@ -12,6 +12,7 @@ functions:
 
 uint32 gamepadGetNumDevices() 0 run_on_os_thread
 uint32 gamepadGetDeviceId(uint32 index) 0 run_on_os_thread
+const char* gamepadGetDeviceName(uint32 index) 0 run_on_os_thread
 uint32 gamepadGetNumAxes(uint32 index) 0 run_on_os_thread
 uint32 gamepadGetNumButtons(uint32 index) 0 run_on_os_thread
 uint32 gamepadGetButtons(uint32 index) 0 run_on_os_thread

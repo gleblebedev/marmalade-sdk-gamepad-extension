@@ -141,6 +141,13 @@ uint32 gamepadGetDeviceId_platform(uint32 index)
     return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetDeviceId, index);
 }
 
+const char* gamepadGetDeviceName_platform(uint32 index)
+{
+return "Not implemented";
+    //JNIEnv* env = s3eEdkJNIGetEnv();
+    //return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetNumAxes, index);
+}
+
 uint32 gamepadGetNumAxes_platform(uint32 index)
 {
     JNIEnv* env = s3eEdkJNIGetEnv();

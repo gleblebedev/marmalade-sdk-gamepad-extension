@@ -33,6 +33,11 @@ uint32 gamepadGetNumDevices()
 	return gamepadGetNumDevices_platform();
 }
 
+const char* gamepadGetDeviceName(uint32 index)
+{
+	return gamepadGetDeviceName_platform(index);
+}
+
 uint32 gamepadGetNumAxes(uint32 index)
 {
 	return gamepadGetNumAxes_platform(index);

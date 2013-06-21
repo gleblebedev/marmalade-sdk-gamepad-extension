@@ -36,6 +36,12 @@ static uint32 gamepadGetDeviceId_wrap(uint32 index)
     return (uint32)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadGetDeviceId, 1, index);
 }
 
+static const char* gamepadGetDeviceName_wrap(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadGetDeviceName"));
+    return (const char*)(intptr_t)s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadGetDeviceName, 1, index);
+}
+
 static uint32 gamepadGetNumAxes_wrap(uint32 index)
 {
     IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadGetNumAxes"));
@@ -92,6 +98,7 @@ static void gamepadUpdate_wrap()
 
 #define gamepadGetNumDevices gamepadGetNumDevices_wrap
 #define gamepadGetDeviceId gamepadGetDeviceId_wrap
+#define gamepadGetDeviceName gamepadGetDeviceName_wrap
 #define gamepadGetNumAxes gamepadGetNumAxes_wrap
 #define gamepadGetNumButtons gamepadGetNumButtons_wrap
 #define gamepadGetButtons gamepadGetButtons_wrap
@@ -107,23 +114,24 @@ static void gamepadUpdate_wrap()
 void gamepadRegisterExt()
 {
     /* fill in the function pointer struct for this extension */
-    void* funcPtrs[11];
+    void* funcPtrs[12];
     funcPtrs[0] = (void*)gamepadGetNumDevices;
     funcPtrs[1] = (void*)gamepadGetDeviceId;
-    funcPtrs[2] = (void*)gamepadGetNumAxes;
-    funcPtrs[3] = (void*)gamepadGetNumButtons;
-    funcPtrs[4] = (void*)gamepadGetButtons;
-    funcPtrs[5] = (void*)gamepadGetAxis;
-    funcPtrs[6] = (void*)gamepadIsPointOfViewAvailable;
-    funcPtrs[7] = (void*)gamepadGetPointOfViewAngle;
-    funcPtrs[8] = (void*)gamepadRegisterCallback;
-    funcPtrs[9] = (void*)gamepadUnregisterCallback;
-    funcPtrs[10] = (void*)gamepadUpdate;
+    funcPtrs[2] = (void*)gamepadGetDeviceName;
+    funcPtrs[3] = (void*)gamepadGetNumAxes;
+    funcPtrs[4] = (void*)gamepadGetNumButtons;
+    funcPtrs[5] = (void*)gamepadGetButtons;
+    funcPtrs[6] = (void*)gamepadGetAxis;
+    funcPtrs[7] = (void*)gamepadIsPointOfViewAvailable;
+    funcPtrs[8] = (void*)gamepadGetPointOfViewAngle;
+    funcPtrs[9] = (void*)gamepadRegisterCallback;
+    funcPtrs[10] = (void*)gamepadUnregisterCallback;
+    funcPtrs[11] = (void*)gamepadUpdate;
 
     /*
      * Flags that specify the extension's use of locking and stackswitching
      */
-    int flags[11] = { 0 };
+    int flags[12] = { 0 };
 
     /*
      * Register the extension
