@@ -17,6 +17,7 @@ public class GamepadInfo
 	public static ArrayList<GamepadInfo> Instance;
 
 	List<InputDevice.MotionRange> motionsRanges;	
+	public int[] axisIds;	
 	public float[] axis;	
 	public int buttons;	
 	public InputDevice device;
@@ -65,23 +66,32 @@ public class GamepadInfo
 	{
 		this.device = device;
 		this.motionsRanges = device.getMotionRanges();
-		axis = new float[this.motionsRanges.size()];
-		for (int i=0; i<axis.length; ++i)
-		{
-			this.axis[i] = 0.5f;
+
+		int numAxes = 0;
+		for (MotionRange range : this.motionsRanges) {
+                	if ((range.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0) {
+	                    numAxes += 1;
+        		}
 		}
+
+		this.axisIds = new int[numAxes];
+		this.axis = new float[numAxes];
+		int i = 0;
+		for (MotionRange range : this.motionsRanges) {
+			if ((range.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0) {
+				this.axis[i] = 0;
+				this.axisIds[i++] = range.getAxis();
+			}
+		}
+
 		buttons = 0;
 	}
 
 	public void handleGenericMotionEvent(MotionEvent event)
 	{
-		for (int i=0; i<this.axis.length; ++i)
+		for (int i=0; i<this.axisIds.length; ++i)
 		{
-			MotionRange r = this.motionsRanges.get(i);
-			if (r.getRange() > 0)
-				this.axis[i] =2.0f*( (event.getAxisValue(i) - r.getMin())/r.getRange() - 0.5f);
-			else
-				this.axis[i] = (event.getAxisValue(i));
+			this.axis[i] = (event.getAxisValue(this.axisIds[i]));
 		}
 		invokeCallbacks();
 	}
