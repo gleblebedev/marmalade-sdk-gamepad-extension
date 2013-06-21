@@ -39,8 +39,8 @@ void gamepadUpdate_platform()
 	for (uint32 i=0; i<gamepad_device_count;++i)
 	{
 		uint32 j = gamepad_device_handlers[i];
-		LPJOYINFOEX pInfo = &gamepad_device_info[j];
-		LPJOYINFOEX pOldInfo = &gamepad_device_info_old[j];
+		LPJOYINFOEX pInfo = &gamepad_device_info[i];
+		LPJOYINFOEX pOldInfo = &gamepad_device_info_old[i];
 		pInfo->dwSize = sizeof(JOYINFOEX);
 		pInfo->dwFlags = JOY_RETURNALL;
 		joyGetPosEx(j, pInfo);
@@ -294,8 +294,8 @@ uint32 gamepadGetButtons_platform(uint32 index)
 
 float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 {
-	auto info = &gamepad_device_info[index];
-	auto caps = &gamepad_device_caps[index];
+	JOYINFOEX* info = &gamepad_device_info[index];
+	JOYCAPS* caps = &gamepad_device_caps[index];
 	switch (axisIndex)
 	{
 	case 0:
@@ -305,8 +305,10 @@ float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 	case 2:
 		return (float)(info->dwZpos-caps->wZmin)/(float)(caps->wZmax - caps->wZmin);
 	case 3:
-		return (float)(info->dwUpos-caps->wUmin)/(float)(caps->wUmax - caps->wUmin);
+		return (float)(info->dwRpos-caps->wRmin)/(float)(caps->wRmax - caps->wRmin);
 	case 4:
+		return (float)(info->dwUpos-caps->wUmin)/(float)(caps->wUmax - caps->wUmin);
+	case 5:
 		return (float)(info->dwVpos-caps->wVmin)/(float)(caps->wVmax - caps->wVmin);
 	default:
 		return 0;
