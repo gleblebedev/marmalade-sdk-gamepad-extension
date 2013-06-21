@@ -159,10 +159,20 @@ uint32 gamepadGetButtons_platform(uint32 index)
     return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetButtons, index);
 }
 
-float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
+int32 gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 {
     JNIEnv* env = s3eEdkJNIGetEnv();
-    return (float)env->CallFloatMethod(g_Obj, g_gamepadGetAxis, index, axisIndex);
+    return (int32)(4096*(float)env->CallFloatMethod(g_Obj, g_gamepadGetAxis, index, axisIndex));
+}
+
+uint32 gamepadIsPointOfViewAvailable(uint32 index)
+{
+	return 0;
+}
+
+int32 gamepadGetPointOfViewAngle(uint32 index)
+{
+	return -1;
 }
 
 void gamepadRegisterCallback_platform(s3eCallback callback, void* userData)

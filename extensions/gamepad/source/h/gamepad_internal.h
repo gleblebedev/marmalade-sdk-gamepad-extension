@@ -53,7 +53,7 @@ uint32 gamepadGetNumButtons_platform(uint32 index);
 
 uint32 gamepadGetButtons_platform(uint32 index);
 
-float gamepadGetAxis_platform(uint32 index, uint32 axisIndex);
+int32 gamepadGetAxis_platform(uint32 index, uint32 axisIndex);
 
 void gamepadRegisterCallback_platform(s3eCallback callback, void* userData);
 

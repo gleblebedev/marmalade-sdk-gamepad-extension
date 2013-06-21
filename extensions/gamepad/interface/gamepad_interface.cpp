@@ -25,7 +25,9 @@ typedef     uint32(*gamepadGetDeviceId_t)(uint32 index);
 typedef     uint32(*gamepadGetNumAxes_t)(uint32 index);
 typedef     uint32(*gamepadGetNumButtons_t)(uint32 index);
 typedef     uint32(*gamepadGetButtons_t)(uint32 index);
-typedef      float(*gamepadGetAxis_t)(uint32 index, uint32 axisIndex);
+typedef      int32(*gamepadGetAxis_t)(uint32 index, uint32 axisIndex);
+typedef     uint32(*gamepadIsPointOfViewAvailable_t)(uint32 index);
+typedef      int32(*gamepadGetPointOfViewAngle_t)(uint32 index);
 typedef       void(*gamepadRegisterCallback_t)(s3eCallback callback, void* userData);
 typedef       void(*gamepadUnregisterCallback_t)(s3eCallback callback);
 typedef       void(*gamepadUpdate_t)();
@@ -41,6 +43,8 @@ typedef struct gamepadFuncs
     gamepadGetNumButtons_t m_gamepadGetNumButtons;
     gamepadGetButtons_t m_gamepadGetButtons;
     gamepadGetAxis_t m_gamepadGetAxis;
+    gamepadIsPointOfViewAvailable_t m_gamepadIsPointOfViewAvailable;
+    gamepadGetPointOfViewAngle_t m_gamepadGetPointOfViewAngle;
     gamepadRegisterCallback_t m_gamepadRegisterCallback;
     gamepadUnregisterCallback_t m_gamepadUnregisterCallback;
     gamepadUpdate_t m_gamepadUpdate;
@@ -189,7 +193,7 @@ uint32 gamepadGetButtons(uint32 index)
     return ret;
 }
 
-float gamepadGetAxis(uint32 index, uint32 axisIndex)
+int32 gamepadGetAxis(uint32 index, uint32 axisIndex)
 {
     IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[5] func: gamepadGetAxis"));
 
@@ -200,7 +204,47 @@ float gamepadGetAxis(uint32 index, uint32 axisIndex)
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
-    float ret = g_Ext.m_gamepadGetAxis(index, axisIndex);
+    int32 ret = g_Ext.m_gamepadGetAxis(index, axisIndex);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+uint32 gamepadIsPointOfViewAvailable(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[6] func: gamepadIsPointOfViewAvailable"));
+
+    if (!_extLoad())
+        return 0;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    uint32 ret = g_Ext.m_gamepadIsPointOfViewAvailable(index);
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return ret;
+}
+
+int32 gamepadGetPointOfViewAngle(uint32 index)
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[7] func: gamepadGetPointOfViewAngle"));
+
+    if (!_extLoad())
+        return 0;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    int32 ret = g_Ext.m_gamepadGetPointOfViewAngle(index);
 
 #ifdef LOADER_CALL
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
@@ -211,7 +255,7 @@ float gamepadGetAxis(uint32 index, uint32 axisIndex)
 
 void gamepadRegisterCallback(s3eCallback callback, void* userData)
 {
-    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[6] func: gamepadRegisterCallback"));
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[8] func: gamepadRegisterCallback"));
 
     if (!_extLoad())
         return;
@@ -231,7 +275,7 @@ void gamepadRegisterCallback(s3eCallback callback, void* userData)
 
 void gamepadUnregisterCallback(s3eCallback callback)
 {
-    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[7] func: gamepadUnregisterCallback"));
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[9] func: gamepadUnregisterCallback"));
 
     if (!_extLoad())
         return;
@@ -251,7 +295,7 @@ void gamepadUnregisterCallback(s3eCallback callback)
 
 void gamepadUpdate()
 {
-    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[8] func: gamepadUpdate"));
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[10] func: gamepadUpdate"));
 
     if (!_extLoad())
         return;

@@ -55,6 +55,12 @@ void gamepadUpdate_platform()
 				info.axesFlags |= 1<<1;
 			if (pOldInfo->dwZpos != pInfo->dwZpos)
 				info.axesFlags |= 1<<2;
+			if (pOldInfo->dwRpos != pInfo->dwRpos)
+				info.axesFlags |= 1<<3;
+			if (pOldInfo->dwUpos != pInfo->dwUpos)
+				info.axesFlags |= 1<<4;
+			if (pOldInfo->dwVpos != pInfo->dwVpos)
+				info.axesFlags |= 1<<5;
 			info.buttonsFlags = (pOldInfo->dwButtons)^(pInfo->dwButtons);
 			info.index = i;
 			*pOldInfo = *pInfo;
@@ -287,29 +293,41 @@ uint32 gamepadGetNumButtons_platform(uint32 index)
 	//return max(gamepad_device_caps[index].wMaxButtons,32);
 }
 
+uint32 gamepadIsPointOfViewAvailable(uint32 index)
+{
+	return (gamepad_device_caps[index].wCaps & JOYCAPS_HASPOV);
+}
+int32 gamepadGetPointOfViewAngle(uint32 index)
+{
+	int32 pov = gamepad_device_info[index].dwPOV;
+	if (pov == 65535)
+		return -1;
+	return (pov * 4096 / 36000);
+}
+
 uint32 gamepadGetButtons_platform(uint32 index)
 {
 	return (gamepad_device_info[index].dwButtons);
 }
 
-float gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
+int32 gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 {
 	JOYINFOEX* info = &gamepad_device_info[index];
 	JOYCAPS* caps = &gamepad_device_caps[index];
 	switch (axisIndex)
 	{
 	case 0:
-		return (float)(info->dwXpos-caps->wXmin)/(float)(caps->wXmax - caps->wXmin);
+		return (info->dwXpos-caps->wXmin)*8192/(caps->wXmax - caps->wXmin)-4096;
 	case 1:
-		return (float)(info->dwYpos-caps->wYmin)/(float)(caps->wYmax - caps->wYmin);
+		return (info->dwYpos-caps->wYmin)*8192/(caps->wYmax - caps->wYmin)-4096;
 	case 2:
-		return (float)(info->dwZpos-caps->wZmin)/(float)(caps->wZmax - caps->wZmin);
+		return (info->dwZpos-caps->wZmin)*8192/(caps->wZmax - caps->wZmin)-4096;
 	case 3:
-		return (float)(info->dwRpos-caps->wRmin)/(float)(caps->wRmax - caps->wRmin);
+		return (info->dwRpos-caps->wRmin)*8192/(caps->wRmax - caps->wRmin)-4096;
 	case 4:
-		return (float)(info->dwUpos-caps->wUmin)/(float)(caps->wUmax - caps->wUmin);
+		return (info->dwUpos-caps->wUmin)*8192/(caps->wUmax - caps->wUmin)-4096;
 	case 5:
-		return (float)(info->dwVpos-caps->wVmin)/(float)(caps->wVmax - caps->wVmin);
+		return (info->dwVpos-caps->wVmin)*8192/(caps->wVmax - caps->wVmin)-4096;
 	default:
 		return 0;
 	}

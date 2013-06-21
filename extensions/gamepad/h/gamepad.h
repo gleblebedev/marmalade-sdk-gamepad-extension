@@ -42,7 +42,11 @@ uint32 gamepadGetNumButtons(uint32 index);
 
 uint32 gamepadGetButtons(uint32 index);
 
-float gamepadGetAxis(uint32 index, uint32 axisIndex);
+int32 gamepadGetAxis(uint32 index, uint32 axisIndex);
+
+uint32 gamepadIsPointOfViewAvailable(uint32 index);
+
+int32 gamepadGetPointOfViewAngle(uint32 index);
 
 void gamepadRegisterCallback(s3eCallback callback, void* userData);
 

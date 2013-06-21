@@ -48,7 +48,7 @@ uint32 gamepadGetButtons(uint32 index)
 	return gamepadGetButtons_platform(index);
 }
 
-float gamepadGetAxis(uint32 index, uint32 axisIndex)
+int32 gamepadGetAxis(uint32 index, uint32 axisIndex)
 {
 	return gamepadGetAxis_platform(index, axisIndex);
 }

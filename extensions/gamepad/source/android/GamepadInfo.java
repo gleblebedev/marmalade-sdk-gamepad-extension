@@ -79,7 +79,7 @@ public class GamepadInfo
 		{
 			MotionRange r = this.motionsRanges.get(i);
 			if (r.getRange() > 0)
-				this.axis[i] = (event.getAxisValue(i) - r.getMin())/r.getRange();
+				this.axis[i] =2.0f*( (event.getAxisValue(i) - r.getMin())/r.getRange() - 0.5f);
 			else
 				this.axis[i] = (event.getAxisValue(i));
 		}

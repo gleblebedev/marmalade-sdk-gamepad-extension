@@ -63,7 +63,12 @@ int main()
 				sprintf(buf+strlen(buf), "%d axes\n", numAxes);
 				for (j=0; j<numAxes && j<6; ++j)
 				{
-					sprintf(buf+strlen(buf), "axis %d: %f\n", j, gamepadGetAxis(i,j));
+					float v = gamepadGetAxis(i,j)/4096.0f;
+					sprintf(buf+strlen(buf), "axis %d: %f\n", j, (double)v);
+				}
+				if (gamepadIsPointOfViewAvailable(i))
+				{
+					sprintf(buf+strlen(buf), "Point of view: %d\n", gamepadGetPointOfViewAngle(i));
 				}
 				uint32 numButtons = gamepadGetNumButtons(i);
 				uint32 b = gamepadGetButtons(i);
