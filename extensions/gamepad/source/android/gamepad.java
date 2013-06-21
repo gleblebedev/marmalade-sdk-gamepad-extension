@@ -48,7 +48,7 @@ class gamepad
     }
     public int gamepadGetNumAxes(int index)
     {
-        return gamepad_devices.get(index).getMotionRanges().size();
+	return GamepadInfo.Instance.get(index).GetNumAxes();
     }
     public int gamepadGetNumButtons(int index)
     {

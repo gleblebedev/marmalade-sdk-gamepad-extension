@@ -87,6 +87,10 @@ public class GamepadInfo
 		buttons = 0;
 	}
 
+	public int GetNumAxes()
+	{
+		return this.axisIds.length;
+	}
 	public void handleGenericMotionEvent(MotionEvent event)
 	{
 		for (int i=0; i<this.axisIds.length; ++i)
