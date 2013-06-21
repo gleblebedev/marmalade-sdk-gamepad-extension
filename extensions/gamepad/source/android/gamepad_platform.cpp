@@ -23,6 +23,7 @@ struct s3eCallbackInfo
 static jobject g_Obj;
 static jmethodID g_gamepadGetNumDevices;
 static jmethodID g_gamepadGetDeviceId;
+static jmethodID g_gamepadGetDeviceName;
 static jmethodID g_gamepadGetNumAxes;
 static jmethodID g_gamepadGetNumButtons;
 static jmethodID g_gamepadGetButtons;
@@ -79,6 +80,10 @@ s3eResult gamepadInit_platform()
 
     g_gamepadGetNumAxes = env->GetMethodID(cls, "gamepadGetNumAxes", "(I)I");
     if (!g_gamepadGetNumAxes)
+        goto fail;
+
+    g_gamepadGetDeviceName = env->GetMethodID(cls, "gamepadGetDeviceName", "(I)L");
+    if (!g_gamepadGetDeviceName)
         goto fail;
 
     g_gamepadGetNumButtons = env->GetMethodID(cls, "gamepadGetNumButtons", "(I)I");
@@ -143,9 +148,15 @@ uint32 gamepadGetDeviceId_platform(uint32 index)
 
 const char* gamepadGetDeviceName_platform(uint32 index)
 {
-return "Not implemented";
-    //JNIEnv* env = s3eEdkJNIGetEnv();
-    //return (uint32)env->CallIntMethod(g_Obj, g_gamepadGetNumAxes, index);
+	return "Not implemented";
+	//JNIEnv* env = s3eEdkJNIGetEnv();
+	//jobject result = (jobject)env->CallObjectMethod(g_Obj, g_gamepadGetDeviceName, index);
+	//jboolean isCopy;
+	//const char* str = env->GetStringUTFChars(env,(jstring) result, &isCopy);
+	//if (isCopy == JNI_TRUE) {
+	//	env->ReleaseStringUTFChars(str, utf_string);
+	//}
+	//return str;
 }
 
 uint32 gamepadGetNumAxes_platform(uint32 index)
