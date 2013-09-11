@@ -32,6 +32,7 @@ static jmethodID g_gamepadUpdate;
 static jmethodID g_gamepadInit;
 static jmethodID g_gamepadTerminate;
 static s3eCallbackInfo gamepad_callbacks[16];
+static char gamepad_names[16][128];
 static uint32 gamepad_num_callbacks = 0;
 
 JNIEXPORT void JNICALL Java_source_android_GamepadInfo_invokeCallbacks
@@ -82,9 +83,9 @@ s3eResult gamepadInit_platform()
     if (!g_gamepadGetNumAxes)
         goto fail;
 
-    //g_gamepadGetDeviceName = env->GetMethodID(cls, "gamepadGetDeviceName", "(I)L");
-    //if (!g_gamepadGetDeviceName)
-    //    goto fail;
+    g_gamepadGetDeviceName = env->GetMethodID(cls, "gamepadGetDeviceName", "(I)Ljava/lang/String;");
+    if (!g_gamepadGetDeviceName)
+        goto fail;
 
     g_gamepadGetNumButtons = env->GetMethodID(cls, "gamepadGetNumButtons", "(I)I");
     if (!g_gamepadGetNumButtons)
@@ -155,15 +156,16 @@ uint32 gamepadGetDeviceId_platform(uint32 index)
 
 const char* gamepadGetDeviceName_platform(uint32 index)
 {
-	return "Not implemented";
-	//JNIEnv* env = s3eEdkJNIGetEnv();
-	//jobject result = (jobject)env->CallObjectMethod(g_Obj, g_gamepadGetDeviceName, index);
-	//jboolean isCopy;
-	//const char* str = env->GetStringUTFChars(env,(jstring) result, &isCopy);
-	//if (isCopy == JNI_TRUE) {
-	//	env->ReleaseStringUTFChars(str, utf_string);
-	//}
-	//return str;
+	JNIEnv* env = s3eEdkJNIGetEnv();
+	jobject result = (jobject)env->CallObjectMethod(g_Obj, g_gamepadGetDeviceName, index);
+	jboolean isCopy;
+
+	jint strlen = env->GetStringUTFLength((jstring) result);
+	if (strlen > 127) strlen = 127;
+	env->GetStringUTFRegion((jstring) result, 0, strlen, gamepad_names[index]);
+	gamepad_names[index][strlen] = 0;
+
+	return gamepad_names[index];
 }
 
 uint32 gamepadGetNumAxes_platform(uint32 index)
