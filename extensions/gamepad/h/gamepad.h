@@ -56,6 +56,8 @@ void gamepadUnregisterCallback(s3eCallback callback);
 
 void gamepadUpdate();
 
+void gamepadReset();
+
 S3E_END_C_DECL
 
 #endif /* !S3E_EXT_GAMEPAD_H */

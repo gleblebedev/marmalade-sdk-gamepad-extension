@@ -73,3 +73,8 @@ void gamepadUpdate()
 	gamepadUpdate_platform();
 }
 
+void gamepadReset()
+{
+	gamepadReset_platform();
+}
+

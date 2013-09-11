@@ -22,5 +22,6 @@ int32 gamepadGetPointOfViewAngle(uint32 index) 0 run_on_os_thread
 void gamepadRegisterCallback(s3eCallback callback, void* userData) void run_on_os_thread
 void gamepadUnregisterCallback(s3eCallback callback) void run_on_os_thread
 void gamepadUpdate() void run_on_os_thread
+void gamepadReset() void run_on_os_thread
 
                         

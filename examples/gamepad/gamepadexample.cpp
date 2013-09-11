@@ -14,8 +14,51 @@
 #include "IwGx.h"
 #include "gamepad.h"
 #include <s3eTypes.h>
+#include <s3ePointer.h>
 
 char g_callbackMsg [1024];
+bool g_gameLoopOn = true;
+bool g_resetList = false;
+
+void HandleClick(int x, int y)
+{
+	if (y < 32)
+	{
+		if (x > (int)IwGxGetScreenWidth() - 32)
+		{
+			g_gameLoopOn = false;
+		}
+		if (x < 32)
+		{
+			g_resetList = true;
+		}
+	}
+}
+
+S3E_API int32 pointerButtonCallback(s3ePointerEvent* ptr, void* userData)
+{
+	if (!ptr->m_Pressed)
+	{
+		HandleClick(ptr->m_x, ptr->m_y);
+	}
+	return 0;
+}
+S3E_API int32 pointerMotionCallback( s3ePointerMotionEvent* ptr, void* userData)
+{
+	return 0;
+}
+S3E_API int32 pointerTouchCallback( s3ePointerTouchEvent* ptr, void* userData)
+{
+	if (!ptr->m_Pressed)
+	{
+		HandleClick(ptr->m_x, ptr->m_y);
+	}
+	return 0;
+}
+S3E_API int32 pointerTouchMotionCallback( s3ePointerTouchMotionEvent* ptr, void* userData)
+{
+	return 0;
+}
 
 S3E_API int32 gamepadCallback(void* ptr, void* userData)
 {
@@ -30,10 +73,19 @@ int main()
 	sprintf(g_callbackMsg,"-");
 	char buf [4096];
 	uint32 i,j;
-	uint32 num = gamepadGetNumDevices();
+	uint32 num;
+	
+	num = gamepadGetNumDevices();
 
 	// Initialise the IwGx drawing module
     IwGxInit();
+
+
+	s3ePointerRegister(S3E_POINTER_BUTTON_EVENT,(s3eCallback)pointerButtonCallback,0);
+	s3ePointerRegister(S3E_POINTER_MOTION_EVENT ,(s3eCallback)pointerMotionCallback,0);
+	s3ePointerRegister(S3E_POINTER_TOUCH_EVENT ,(s3eCallback)pointerTouchCallback,0);
+	s3ePointerRegister(S3E_POINTER_TOUCH_MOTION_EVENT ,(s3eCallback)pointerTouchMotionCallback,0);
+
 	if (gamepadAvailable())
 	{
 		gamepadRegisterCallback(gamepadCallback,0);
@@ -43,8 +95,18 @@ int main()
     // Set the background colour to (opaque) blue
     IwGxSetColClear(0, 0, 0xff, 0xff);
     // Loop forever, until the user or the OS performs some action to quit the app
-    while (!s3eDeviceCheckQuitRequest())
+    while (!s3eDeviceCheckQuitRequest() && g_gameLoopOn)
     {
+		if (g_resetList)
+		{
+			if (gamepadAvailable())
+			{
+				gamepadReset();
+				num = gamepadGetNumDevices();
+				//gamepadInit();
+			}
+			g_resetList = false;
+		}
         // Clear the surface
         IwGxClear();
 
@@ -63,7 +125,7 @@ int main()
 				sprintf(buf+strlen(buf), "%d: id=0x%08X, name=%s\n", i, gamepadGetDeviceId(i), name);
 				uint32 numAxes  = gamepadGetNumAxes(i);
 				sprintf(buf+strlen(buf), "%d axes\n", numAxes);
-				for (j=0; j<numAxes && j<6; ++j)
+				for (j=0; j<numAxes && j<8; ++j)
 				{
 					float v = gamepadGetAxis(i,j)/4096.0f;
 					sprintf(buf+strlen(buf), "axis %d: %f\n", j, (double)v);

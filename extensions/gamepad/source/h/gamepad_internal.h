@@ -63,5 +63,6 @@ void gamepadUnregisterCallback_platform(s3eCallback callback);
 
 void gamepadUpdate_platform();
 
+void gamepadReset_platform();
 
 #endif /* !GAMEPAD_INTERNAL_H */

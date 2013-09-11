@@ -7,6 +7,7 @@ import android.view.InputDevice.MotionRange;
 import android.view.MotionEvent;
 import java.lang.Float;
 import android.view.KeyEvent;
+import java.lang.String;
 
 public class GamepadInfo
 {
@@ -86,7 +87,11 @@ public class GamepadInfo
 
 		buttons = 0;
 	}
-
+	        
+	public String GetName()
+	{
+		return this.device.getName();
+	}
 	public int GetNumAxes()
 	{
 		return this.axisIds.length;
@@ -105,6 +110,17 @@ public class GamepadInfo
 		int newButtons = buttons;
 		switch (keyCode)
 		{
+		case KeyEvent.KEYCODE_DPAD_DOWN:
+			break;
+		case KeyEvent.KEYCODE_DPAD_LEFT:
+			break;
+		case KeyEvent.KEYCODE_DPAD_RIGHT:
+			break;
+		case KeyEvent.KEYCODE_DPAD_UP:
+			break;
+		case KeyEvent.KEYCODE_DPAD_CENTER:
+			newButtons &= ~(1 << 31);
+			break;
 		case KeyEvent.KEYCODE_BUTTON_1:	// Key code constant: Generic Game Pad Button #1.
 			newButtons &= ~(1 << 0);
 			break;
@@ -208,6 +224,17 @@ public class GamepadInfo
 		int newButtons = buttons;
 		switch (keyCode)
 		{
+		case KeyEvent.KEYCODE_DPAD_DOWN:
+			break;
+		case KeyEvent.KEYCODE_DPAD_LEFT:
+			break;
+		case KeyEvent.KEYCODE_DPAD_RIGHT:
+			break;
+		case KeyEvent.KEYCODE_DPAD_UP:
+			break;
+		case KeyEvent.KEYCODE_DPAD_CENTER:
+			newButtons |= (1 << 31);
+			break;
 		case KeyEvent.KEYCODE_BUTTON_1:	// Key code constant: Generic Game Pad Button #1.
 			newButtons |= (1 << 0);
 			break;

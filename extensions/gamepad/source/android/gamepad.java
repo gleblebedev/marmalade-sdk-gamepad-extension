@@ -15,36 +15,22 @@ import com.ideaworks3d.marmalade.LoaderActivity;
 import java.util.ArrayList;
 import android.view.MotionEvent;
 import source.android.GamepadInfo;
+import java.lang.String;
 
 class gamepad
 {
-	public final ArrayList<InputDevice> gamepad_devices;
+	public ArrayList<InputDevice> gamepad_devices;
 	
 	public gamepad()
 	{
-		int[] devices;
-
-		gamepad_devices = new ArrayList<InputDevice>();
-
-		GamepadInfo.Instance = new ArrayList<GamepadInfo>();
-
-		devices = InputDevice.getDeviceIds();
-		for (int i=0; i<devices.length; ++i)
-		{
-			InputDevice device = InputDevice.getDevice(devices[i]);
-			int sources = device.getSources();
-			if (((sources & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD)
-				|| ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
-				|| ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))
-			{
-				gamepad_devices.add(device);
-				GamepadInfo.Instance.add(new GamepadInfo(device));
-			}
-		}
 	}
     public int gamepadGetNumDevices()
     {
         return gamepad_devices.size();
+    }
+    public String gamepadGetDeviceName(int index)
+    {
+	return GamepadInfo.Instance.get(index).GetName();
     }
     public int gamepadGetNumAxes(int index)
     {
@@ -68,7 +54,25 @@ class gamepad
     }
     public void gamepadInit()
     {
-        
+		int[] devices;
+
+		gamepad_devices = new ArrayList<InputDevice>();
+
+		GamepadInfo.Instance = new ArrayList<GamepadInfo>();
+
+		devices = InputDevice.getDeviceIds();
+		for (int i=0; i<devices.length; ++i)
+		{
+			InputDevice device = InputDevice.getDevice(devices[i]);
+			int sources = device.getSources();
+			if (((sources & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD)
+				|| ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
+				|| ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))
+			{
+				gamepad_devices.add(device);
+				GamepadInfo.Instance.add(new GamepadInfo(device));
+			}
+		}
     }
     public void gamepadTerminate()
     {

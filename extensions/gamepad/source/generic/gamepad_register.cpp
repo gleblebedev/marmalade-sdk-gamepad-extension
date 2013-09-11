@@ -96,6 +96,12 @@ static void gamepadUpdate_wrap()
     s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadUpdate, 0);
 }
 
+static void gamepadReset_wrap()
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad func on main thread: gamepadReset"));
+    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)gamepadReset, 0);
+}
+
 #define gamepadGetNumDevices gamepadGetNumDevices_wrap
 #define gamepadGetDeviceId gamepadGetDeviceId_wrap
 #define gamepadGetDeviceName gamepadGetDeviceName_wrap
@@ -108,13 +114,14 @@ static void gamepadUpdate_wrap()
 #define gamepadRegisterCallback gamepadRegisterCallback_wrap
 #define gamepadUnregisterCallback gamepadUnregisterCallback_wrap
 #define gamepadUpdate gamepadUpdate_wrap
+#define gamepadReset gamepadReset_wrap
 
 #endif
 
 void gamepadRegisterExt()
 {
     /* fill in the function pointer struct for this extension */
-    void* funcPtrs[12];
+    void* funcPtrs[13];
     funcPtrs[0] = (void*)gamepadGetNumDevices;
     funcPtrs[1] = (void*)gamepadGetDeviceId;
     funcPtrs[2] = (void*)gamepadGetDeviceName;
@@ -127,11 +134,12 @@ void gamepadRegisterExt()
     funcPtrs[9] = (void*)gamepadRegisterCallback;
     funcPtrs[10] = (void*)gamepadUnregisterCallback;
     funcPtrs[11] = (void*)gamepadUpdate;
+    funcPtrs[12] = (void*)gamepadReset;
 
     /*
      * Flags that specify the extension's use of locking and stackswitching
      */
-    int flags[12] = { 0 };
+    int flags[13] = { 0 };
 
     /*
      * Register the extension

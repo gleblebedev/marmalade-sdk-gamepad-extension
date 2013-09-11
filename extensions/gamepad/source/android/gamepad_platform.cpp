@@ -82,9 +82,9 @@ s3eResult gamepadInit_platform()
     if (!g_gamepadGetNumAxes)
         goto fail;
 
-    g_gamepadGetDeviceName = env->GetMethodID(cls, "gamepadGetDeviceName", "(I)L");
-    if (!g_gamepadGetDeviceName)
-        goto fail;
+    //g_gamepadGetDeviceName = env->GetMethodID(cls, "gamepadGetDeviceName", "(I)L");
+    //if (!g_gamepadGetDeviceName)
+    //    goto fail;
 
     g_gamepadGetNumButtons = env->GetMethodID(cls, "gamepadGetNumButtons", "(I)I");
     if (!g_gamepadGetNumButtons)
@@ -132,6 +132,13 @@ void gamepadTerminate_platform()
     // Add any platform-specific termination code here
     JNIEnv* env = s3eEdkJNIGetEnv();
     env->CallIntMethod(g_Obj, g_gamepadTerminate);
+}
+
+void gamepadReset_platform()
+{
+	JNIEnv* env = s3eEdkJNIGetEnv();
+	env->CallIntMethod(g_Obj, g_gamepadTerminate);
+	env->CallIntMethod(g_Obj, g_gamepadInit);
 }
 
 uint32 gamepadGetNumDevices_platform()

@@ -34,6 +34,61 @@ bool gamepadCompare(JOYINFOEX* a, JOYINFOEX* b)
 	}
 	return true;
 }
+
+void gamepadReleaseDevices()
+{
+		for (uint32 i=0; i<gamepad_device_count && i<15; ++i)
+	{
+		MMRESULT mmResult = joyReleaseCapture(gamepad_device_handlers[i]);
+		if (JOYERR_NOERROR == mmResult)
+		{
+			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d released", gamepad_device_handlers[i]-JOYSTICKID1+1));
+		}
+		else
+		{
+			switch (mmResult)
+			{
+			case MMSYSERR_NODRIVER:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be released: MMSYSERR_NODRIVER", i+1));
+				break;
+			default:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be released: 0x%08X", i+1, mmResult));
+				break;
+			}
+		}
+	}
+	gamepad_device_count = 0;
+
+}
+void gamepadCaptureDevices()
+{
+		gamepad_device_count = 0;
+	for (uint32 i=0; i<joyGetNumDevs() && i<15; ++i)
+	{
+		MMRESULT mmResult = joySetCapture(s3eEdkGetHwnd(), JOYSTICKID1+i, 10, FALSE);
+		if (JOYERR_NOERROR == mmResult)
+		{
+			gamepad_device_handlers[gamepad_device_count] = JOYSTICKID1+i;
+			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d captured", i+1));
+			joyGetDevCaps(JOYSTICKID1+i, &gamepad_device_caps[gamepad_device_count], sizeof(JOYCAPS));
+			++gamepad_device_count;
+		}
+		else
+		{
+			switch (mmResult)
+			{
+			case MMSYSERR_NODRIVER:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: MMSYSERR_NODRIVER", i+1));
+				break;
+			default:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: 0x%08X", i+1, mmResult));
+				break;
+			}
+		}
+	}
+
+}
+
 void gamepadUpdate_platform()
 {
 	for (uint32 i=0; i<gamepad_device_count;++i)
@@ -132,22 +187,20 @@ LRESULT CALLBACK gamepadGetMsgProc(int code, WPARAM wParam, LPARAM lParam)
 
 	return CallNextHookEx(hook, code, wParam, lParam); 
 }
+void gamepadReset_platform()
+{
+	gamepadReleaseDevices();
 
+	gamepadCaptureDevices();
+	//if (S3E_RESULT_SUCCESS != gamepadInit_platform())
+	//	return S3E_RESULT_ERROR;
+	//return S3E_RESULT_SUCCESS;
+}
 s3eResult gamepadInit_platform()
 {
 	IwTrace(GAMEPAD_VERBOSE, ("gamepadInit"));
 
-	gamepad_device_count = 0;
-	for (uint32 i=0; i<joyGetNumDevs() && i<15; ++i)
-	{
-		if (JOYERR_NOERROR == joySetCapture(s3eEdkGetHwnd(), JOYSTICKID1+i, 1, FALSE))
-		{
-			gamepad_device_handlers[gamepad_device_count] = JOYSTICKID1+i;
-			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d captured", i+1));
-			joyGetDevCaps(JOYSTICKID1+i, &gamepad_device_caps[gamepad_device_count], sizeof(JOYCAPS));
-			++gamepad_device_count;
-		}
-	}
+	gamepadCaptureDevices();
 	gamepadUpdate_platform();
 
 	//if (GetRawInputDeviceList(0, &gamepad_total_device_count, sizeof(RAWINPUTDEVICELIST)))
@@ -245,12 +298,7 @@ void gamepadTerminate_platform()
 {
 	IwTrace(GAMEPAD_VERBOSE, ("gamepadTerminate"));
 
-	for (uint32 i=0; i<gamepad_device_count && i<15; ++i)
-	{
-		joyReleaseCapture(gamepad_device_handlers[i]);
-		IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d released", gamepad_device_handlers[i]));
-	}
-	gamepad_device_count = 0;
+	gamepadReleaseDevices();
 		
     // Add any platform-specific termination code here
 	//if (gamepad_device_list != 0)
