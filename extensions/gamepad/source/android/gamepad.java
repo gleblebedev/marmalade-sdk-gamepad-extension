@@ -26,51 +26,103 @@ class gamepad
 	}
     public int gamepadGetNumDevices()
     {
-        return gamepad_devices.size();
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
+		{
+			return gamepad_devices.size();
+		}
+		else
+		{
+			return 0;
+		}
     }
     public String gamepadGetDeviceName(int index)
     {
-	return GamepadInfo.Instance.get(index).GetName();
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
+		{
+			return GamepadInfo.Instance.get(index).GetName();
+		}
+		else
+		{
+			return "Not Available";
+		}
     }
     public int gamepadGetNumAxes(int index)
     {
-	return GamepadInfo.Instance.get(index).GetNumAxes();
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
+		{
+			return GamepadInfo.Instance.get(index).GetNumAxes();
+		}
+		else
+		{
+			return 0;
+		}
     }
     public int gamepadGetNumButtons(int index)
     {
-        return 32;
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
+		{
+			return 32;
+		}
+		else
+		{
+			return 0;
+		}
     }
     public float gamepadGetAxis(int index, int axisIndex)
     {
-        return GamepadInfo.Instance.get(index).axis[axisIndex];
+		if (android.os.Build.VERSION.SDK_INT >= 11 && axisIndex < GamepadInfo.Instance.get(index).GetNumAxes())
+		{
+			return GamepadInfo.Instance.get(index).axis[axisIndex];
+		}
+		else
+		{
+			return 0;
+		}
     }
     public int gamepadGetButtons(int index)
     {
-        return GamepadInfo.Instance.get(index).buttons;
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
+		{
+			return GamepadInfo.Instance.get(index).buttons;
+		}
+		else
+		{
+			return 0;
+		}
     }
     public int gamepadGetDeviceId(int index)
     {
-        return gamepad_devices.get(index).getSources();
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
+		{
+			return gamepad_devices.get(index).getSources();
+		}
+		else
+		{
+			return 0;
+		}
     }
     public void gamepadInit()
     {
-		int[] devices;
-
-		gamepad_devices = new ArrayList<InputDevice>();
-
-		GamepadInfo.Instance = new ArrayList<GamepadInfo>();
-
-		devices = InputDevice.getDeviceIds();
-		for (int i=0; i<devices.length; ++i)
+		if (android.os.Build.VERSION.SDK_INT >= 11) 
 		{
-			InputDevice device = InputDevice.getDevice(devices[i]);
-			int sources = device.getSources();
-			if (((sources & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD)
-				|| ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
-				|| ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))
+			int[] devices;
+
+			gamepad_devices = new ArrayList<InputDevice>();
+
+			GamepadInfo.Instance = new ArrayList<GamepadInfo>();
+
+			devices = InputDevice.getDeviceIds();
+			for (int i=0; i<devices.length; ++i)
 			{
-				gamepad_devices.add(device);
-				GamepadInfo.Instance.add(new GamepadInfo(device));
+				InputDevice device = InputDevice.getDevice(devices[i]);
+				int sources = device.getSources();
+				if (((sources & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD)
+					|| ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
+					|| ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK))
+				{
+					gamepad_devices.add(device);
+					GamepadInfo.Instance.add(new GamepadInfo(device));
+				}
 			}
 		}
     }

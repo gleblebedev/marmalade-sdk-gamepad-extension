@@ -33,6 +33,7 @@ typedef       void(*gamepadRegisterCallback_t)(s3eCallback callback, void* userD
 typedef       void(*gamepadUnregisterCallback_t)(s3eCallback callback);
 typedef       void(*gamepadUpdate_t)();
 typedef       void(*gamepadReset_t)();
+typedef       void(*gamepadCalibrate_t)();
 
 /**
  * struct that gets filled in by gamepadRegister
@@ -52,6 +53,7 @@ typedef struct gamepadFuncs
     gamepadUnregisterCallback_t m_gamepadUnregisterCallback;
     gamepadUpdate_t m_gamepadUpdate;
     gamepadReset_t m_gamepadReset;
+    gamepadCalibrate_t m_gamepadCalibrate;
 } gamepadFuncs;
 
 static gamepadFuncs g_Ext;
@@ -349,6 +351,26 @@ void gamepadReset()
 #endif
 
     g_Ext.m_gamepadReset();
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
+#endif
+
+    return;
+}
+
+void gamepadCalibrate()
+{
+    IwTrace(GAMEPAD_VERBOSE, ("calling gamepad[13] func: gamepadCalibrate"));
+
+    if (!_extLoad())
+        return;
+
+#ifdef LOADER_CALL
+    s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
+#endif
+
+    g_Ext.m_gamepadCalibrate();
 
 #ifdef LOADER_CALL
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);

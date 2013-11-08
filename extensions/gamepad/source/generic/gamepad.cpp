@@ -78,3 +78,8 @@ void gamepadReset()
 	gamepadReset_platform();
 }
 
+void gamepadCalibrate()
+{
+	gamepadCalibrate_platform();
+}
+

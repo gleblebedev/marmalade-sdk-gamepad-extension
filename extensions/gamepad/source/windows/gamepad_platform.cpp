@@ -80,6 +80,18 @@ void gamepadCaptureDevices()
 			case MMSYSERR_NODRIVER:
 				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: MMSYSERR_NODRIVER", i+1));
 				break;
+			case MMSYSERR_INVALPARAM:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: MMSYSERR_INVALPARAM", i+1));
+				break;
+			case JOYERR_NOCANDO:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: JOYERR_NOCANDO", i+1));
+				break;
+			case JOYERR_UNPLUGGED:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: JOYERR_UNPLUGGED", i+1));
+				break;
+			case JOYERR_PARMS:
+				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: JOYERR_PARMS", i+1));
+				break;
 			default:
 				IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d failed to be captured: 0x%08X", i+1, mmResult));
 				break;
@@ -187,10 +199,31 @@ LRESULT CALLBACK gamepadGetMsgProc(int code, WPARAM wParam, LPARAM lParam)
 
 	return CallNextHookEx(hook, code, wParam, lParam); 
 }
+
+void gamepadCalibrate_platform()
+{
+  IwTrace(GAMEPAD, ("Launching calibration"));
+  LPSTR lpCommandLine = "control.exe joy.cpl";
+
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
+
+  ZeroMemory( &si, sizeof(si) );
+  si.cb = sizeof(si);
+  ZeroMemory( &pi, sizeof(pi) );
+
+  CreateProcess(
+    NULL,
+    lpCommandLine,
+    NULL, NULL,
+    FALSE, 0, NULL, NULL,
+    &si,
+    &pi);
+}
+
 void gamepadReset_platform()
 {
 	gamepadReleaseDevices();
-
 	gamepadCaptureDevices();
 	//if (S3E_RESULT_SUCCESS != gamepadInit_platform())
 	//	return S3E_RESULT_ERROR;

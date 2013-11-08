@@ -142,6 +142,10 @@ void gamepadReset_platform()
 	env->CallIntMethod(g_Obj, g_gamepadInit);
 }
 
+void gamepadCalibrate_platform()
+{
+}
+
 uint32 gamepadGetNumDevices_platform()
 {
     JNIEnv* env = s3eEdkJNIGetEnv();

@@ -23,5 +23,5 @@ void gamepadRegisterCallback(s3eCallback callback, void* userData) void run_on_o
 void gamepadUnregisterCallback(s3eCallback callback) void run_on_os_thread
 void gamepadUpdate() void run_on_os_thread
 void gamepadReset() void run_on_os_thread
-
+void gamepadCalibrate() void run_on_os_thread
                         

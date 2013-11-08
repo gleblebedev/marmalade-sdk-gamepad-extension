@@ -58,6 +58,8 @@ void gamepadUpdate();
 
 void gamepadReset();
 
+void gamepadCalibrate();
+
 S3E_END_C_DECL
 
 #endif /* !S3E_EXT_GAMEPAD_H */
