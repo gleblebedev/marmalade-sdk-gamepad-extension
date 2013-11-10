@@ -9,6 +9,9 @@
 #include "gamepad_internal.h"
 #include <s3eEdk_windows.h>
 #include "IwDebug.h"
+#include <windows.h>
+#include <mmsystem.h>
+#include <regstr.h>
 
 struct s3eCallbackInfo
 {
@@ -21,9 +24,62 @@ static UINT gamepad_device_handlers[16];
 static JOYINFOEX gamepad_device_info[16];
 static JOYINFOEX gamepad_device_info_old[16];
 static JOYCAPS gamepad_device_caps[16];
+typedef char device_name[256];
+static device_name gamepad_device_name[16];
 static s3eCallbackInfo gamepad_callbacks[16];
 static UINT gamepad_num_callbacks = 0;
 static HHOOK hook = 0;
+
+static int gamepadGetOEMProductName ( int index )
+{
+    char buffer [ 256 ];
+
+    char OEMKey [ 256 ];
+
+	sprintf(gamepad_device_name[index],"Microsoft PC joystick driver");
+
+    HKEY  hKey;
+    DWORD dwcb;
+    LONG  lr;
+
+    /* Open .. MediaResources\CurrentJoystickSettings */
+    sprintf ( buffer, "%s\\%s\\%s", REGSTR_PATH_JOYCONFIG, &gamepad_device_caps[index].szRegKey, REGSTR_KEY_JOYCURR );
+
+    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey);
+
+    if ( lr != ERROR_SUCCESS ) {
+		IwTrace(GAMEPAD_VERBOSE, ("Can't open registry %s for JOYSTICKID%d", buffer, index));
+		return 0;
+	}
+
+    /* Get OEM Key name */
+    dwcb = sizeof(OEMKey);
+
+    /* JOYSTICKID1-16 is zero-based; registry entries for VJOYD are 1-based. */
+    sprintf ( buffer, "Joystick%d%s", index + 1, REGSTR_VAL_JOYOEMNAME );
+
+    lr = RegQueryValueEx ( hKey, buffer, 0, 0, (LPBYTE) OEMKey, &dwcb);
+    RegCloseKey ( hKey );
+
+    if ( lr != ERROR_SUCCESS ) return 0;
+
+    /* Open OEM Key from ...MediaProperties */
+    sprintf ( buffer, "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey );
+
+    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey );
+
+    if ( lr != ERROR_SUCCESS ) return 0;
+
+    /* Get OEM Name */
+    dwcb = 255;
+
+    lr = RegQueryValueEx ( hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE) gamepad_device_name[index], &dwcb );
+    RegCloseKey ( hKey );
+
+    if ( lr != ERROR_SUCCESS ) return 0;
+
+    return 1;
+}
 
 bool gamepadCompare(JOYINFOEX* a, JOYINFOEX* b)
 {
@@ -71,6 +127,10 @@ void gamepadCaptureDevices()
 			gamepad_device_handlers[gamepad_device_count] = JOYSTICKID1+i;
 			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d captured", i+1));
 			joyGetDevCaps(JOYSTICKID1+i, &gamepad_device_caps[gamepad_device_count], sizeof(JOYCAPS));
+			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szPname=%s", JOYSTICKID1+i, gamepad_device_caps[gamepad_device_count].szPname));
+			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szRegKey=%s", JOYSTICKID1+i, gamepad_device_caps[gamepad_device_count].szRegKey));
+			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szOEMVxD=%s", JOYSTICKID1+i, gamepad_device_caps[gamepad_device_count].szOEMVxD));
+			gamepadGetOEMProductName(gamepad_device_count);
 			++gamepad_device_count;
 		}
 		else
@@ -393,7 +453,8 @@ uint32 gamepadGetButtons_platform(uint32 index)
 
 const char* gamepadGetDeviceName_platform(uint32 index)
 {
-	return (gamepad_device_caps[index].szPname);
+	return gamepad_device_name[index];
+	//return (gamepad_device_caps[index].szPname);
 }
 
 int32 gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
