@@ -19,16 +19,34 @@ struct s3eCallbackInfo
 	void* userData;
 };
 
-static UINT gamepad_device_count = 0;
-static UINT gamepad_device_handlers[16];
-static JOYINFOEX gamepad_device_info[16];
-static JOYINFOEX gamepad_device_info_old[16];
-static JOYCAPS gamepad_device_caps[16];
 typedef char device_name[256];
-static device_name gamepad_device_name[16];
+
+struct GamePadInfo
+{
+	UINT handler;
+	JOYINFOEX current;
+	JOYINFOEX previous;
+	JOYCAPS caps;
+	device_name name;
+
+	GamePadInfo(){
+		memset(this,0,sizeof(GamePadInfo));
+	}
+};
+
+static UINT gamepad_device_count = 0;
+static GamePadInfo gamepad_device_info[16];
+static GamePadInfo gamepad_device_info_nullobject;
+
 static s3eCallbackInfo gamepad_callbacks[16];
 static UINT gamepad_num_callbacks = 0;
 static HHOOK hook = 0;
+
+static GamePadInfo* gamepadGetInfo ( int index )
+{
+	if (index < 0 || index >= gamepad_device_count) return &gamepad_device_info_nullobject;
+	return gamepad_device_info+index;
+}
 
 static int gamepadGetOEMProductName ( int index )
 {
@@ -36,16 +54,20 @@ static int gamepadGetOEMProductName ( int index )
 
     char OEMKey [ 256 ];
 
-	sprintf(gamepad_device_name[index],"Microsoft PC joystick driver");
+	GamePadInfo* info = gamepad_device_info+index;
+
+	sprintf(info->name,"Microsoft PC joystick driver");
 
     HKEY  hKey;
     DWORD dwcb;
     LONG  lr;
 
     /* Open .. MediaResources\CurrentJoystickSettings */
-    sprintf ( buffer, "%s\\%s\\%s", REGSTR_PATH_JOYCONFIG, &gamepad_device_caps[index].szRegKey, REGSTR_KEY_JOYCURR );
+	sprintf ( buffer, "%s\\%s\\%s", REGSTR_PATH_JOYCONFIG, &info->caps.szRegKey, REGSTR_KEY_JOYCURR );
 
-    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey);
+	//HKEY_LOCAL_MACHINE
+	auto hkey = HKEY_CURRENT_USER;
+	lr = RegOpenKeyEx ( hkey, buffer, 0, KEY_QUERY_VALUE, &hKey);
 
     if ( lr != ERROR_SUCCESS ) {
 		IwTrace(GAMEPAD_VERBOSE, ("Can't open registry %s for JOYSTICKID%d", buffer, index));
@@ -66,14 +88,14 @@ static int gamepadGetOEMProductName ( int index )
     /* Open OEM Key from ...MediaProperties */
     sprintf ( buffer, "%s\\%s", REGSTR_PATH_JOYOEM, OEMKey );
 
-    lr = RegOpenKeyEx ( HKEY_LOCAL_MACHINE, buffer, 0, KEY_QUERY_VALUE, &hKey );
+    lr = RegOpenKeyEx ( hkey, buffer, 0, KEY_QUERY_VALUE, &hKey );
 
     if ( lr != ERROR_SUCCESS ) return 0;
 
     /* Get OEM Name */
     dwcb = 255;
 
-    lr = RegQueryValueEx ( hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE) gamepad_device_name[index], &dwcb );
+	lr = RegQueryValueEx ( hKey, REGSTR_VAL_JOYOEMNAME, 0, 0, (LPBYTE) &info->name, &dwcb );
     RegCloseKey ( hKey );
 
     if ( lr != ERROR_SUCCESS ) return 0;
@@ -95,10 +117,10 @@ void gamepadReleaseDevices()
 {
 		for (uint32 i=0; i<gamepad_device_count && i<15; ++i)
 	{
-		MMRESULT mmResult = joyReleaseCapture(gamepad_device_handlers[i]);
+		MMRESULT mmResult = joyReleaseCapture(gamepad_device_info[i].handler);
 		if (JOYERR_NOERROR == mmResult)
 		{
-			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d released", gamepad_device_handlers[i]-JOYSTICKID1+1));
+			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d released", gamepad_device_info[i].handler-JOYSTICKID1+1));
 		}
 		else
 		{
@@ -124,12 +146,12 @@ void gamepadCaptureDevices()
 		MMRESULT mmResult = joySetCapture(s3eEdkGetHwnd(), JOYSTICKID1+i, 10, FALSE);
 		if (JOYERR_NOERROR == mmResult)
 		{
-			gamepad_device_handlers[gamepad_device_count] = JOYSTICKID1+i;
+			gamepad_device_info[gamepad_device_count].handler = JOYSTICKID1+i;
 			IwTrace(GAMEPAD_VERBOSE, ("joystick JOYSTICKID%d captured", i+1));
-			joyGetDevCaps(JOYSTICKID1+i, &gamepad_device_caps[gamepad_device_count], sizeof(JOYCAPS));
-			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szPname=%s", JOYSTICKID1+i, gamepad_device_caps[gamepad_device_count].szPname));
-			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szRegKey=%s", JOYSTICKID1+i, gamepad_device_caps[gamepad_device_count].szRegKey));
-			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szOEMVxD=%s", JOYSTICKID1+i, gamepad_device_caps[gamepad_device_count].szOEMVxD));
+			joyGetDevCaps(JOYSTICKID1+i, &gamepad_device_info[gamepad_device_count].caps, sizeof(JOYCAPS));
+			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szPname=%s", JOYSTICKID1+i, gamepad_device_info[gamepad_device_count].caps.szPname));
+			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szRegKey=%s", JOYSTICKID1+i, gamepad_device_info[gamepad_device_count].caps.szRegKey));
+			IwTrace(GAMEPAD_VERBOSE, ("JOYSTICKID%d szOEMVxD=%s", JOYSTICKID1+i, gamepad_device_info[gamepad_device_count].caps.szOEMVxD));
 			gamepadGetOEMProductName(gamepad_device_count);
 			++gamepad_device_count;
 		}
@@ -165,9 +187,9 @@ void gamepadUpdate_platform()
 {
 	for (uint32 i=0; i<gamepad_device_count;++i)
 	{
-		uint32 j = gamepad_device_handlers[i];
-		LPJOYINFOEX pInfo = &gamepad_device_info[i];
-		LPJOYINFOEX pOldInfo = &gamepad_device_info_old[i];
+		uint32 j = gamepad_device_info[i].handler;
+		LPJOYINFOEX pInfo = &gamepad_device_info[i].current;
+		LPJOYINFOEX pOldInfo = &gamepad_device_info[i].previous;
 		pInfo->dwSize = sizeof(JOYINFOEX);
 		pInfo->dwFlags = JOY_RETURNALL;
 		joyGetPosEx(j, pInfo);
@@ -424,23 +446,23 @@ uint32 gamepadGetNumDevices_platform()
 
 uint32 gamepadGetNumAxes_platform(uint32 index)
 {
-	return gamepad_device_caps[index].wMaxAxes;
+	return gamepadGetInfo(index)->caps.wMaxAxes;
 	//return max(gamepad_device_caps[index].wMaxAxes,32);
 }
 
 uint32 gamepadGetNumButtons_platform(uint32 index)
 {
-	return gamepad_device_caps[index].wMaxButtons;
+	return gamepadGetInfo(index)->caps.wMaxButtons;
 	//return max(gamepad_device_caps[index].wMaxButtons,32);
 }
 
 uint32 gamepadIsPointOfViewAvailable(uint32 index)
 {
-	return (gamepad_device_caps[index].wCaps & JOYCAPS_HASPOV);
+	return (gamepadGetInfo(index)->caps.wCaps & JOYCAPS_HASPOV);
 }
 int32 gamepadGetPointOfViewAngle(uint32 index)
 {
-	int32 pov = gamepad_device_info[index].dwPOV;
+	int32 pov = gamepadGetInfo(index)->current.dwPOV;
 	if (pov == 65535)
 		return -1;
 	return (pov * 4096 / 36000);
@@ -448,19 +470,20 @@ int32 gamepadGetPointOfViewAngle(uint32 index)
 
 uint32 gamepadGetButtons_platform(uint32 index)
 {
-	return (gamepad_device_info[index].dwButtons);
+	return (gamepadGetInfo(index)->current.dwButtons);
 }
 
 const char* gamepadGetDeviceName_platform(uint32 index)
 {
-	return gamepad_device_name[index];
+	return (gamepadGetInfo(index)->name);
 	//return (gamepad_device_caps[index].szPname);
 }
 
 int32 gamepadGetAxis_platform(uint32 index, uint32 axisIndex)
 {
-	JOYINFOEX* info = &gamepad_device_info[index];
-	JOYCAPS* caps = &gamepad_device_caps[index];
+	GamePadInfo* gamepadinfo = gamepadGetInfo(index);
+	JOYINFOEX* info = &gamepadinfo->current;
+	JOYCAPS* caps = &gamepadinfo->caps;
 	switch (axisIndex)
 	{
 	case 0:
@@ -505,5 +528,5 @@ void gamepadUnregisterCallback_platform(s3eCallback callback)
 
 uint32 gamepadGetDeviceId_platform(uint32 index)
 {
-	return gamepad_device_handlers[index];
+	return gamepadGetInfo(index)->handler;
 }
